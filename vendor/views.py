@@ -2,14 +2,25 @@ from django.shortcuts import render, redirect
 from accounts.forms import UserForm
 from vendor.forms import VendorForm
 from accounts.models import User, UserProfile
-from vendor.models import Vendor
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
 
 
-# Create your views here.
+# Restricting the Vendor from accessing the Customer page
+def checkRoleVendor(user):
+    if user.role == 1:
+        return True
+    else:
+        raise PermissionDenied
+    
+
 def registerVendor(request):
     # Store the data and create the user
-    if request.method == "POST":
+    if request.user.is_authenticated:
+        messages.warning(request, "You are already logged in!")
+        return redirect('accounts:myAccount')
+    elif request.method == "POST":
         form = UserForm(request.POST)
         v_form = VendorForm(request.POST, request.FILES)
 
@@ -49,3 +60,9 @@ def registerVendor(request):
     }
 
     return render(request, 'vendors/registerVendor.html', context)
+
+
+@login_required(login_url="accounts:login")
+@user_passes_test(checkRoleVendor)
+def vendorDashboard(request):
+    return render(request, 'vendors/vendorDashboard.html')

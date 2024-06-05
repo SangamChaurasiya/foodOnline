@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
         user.is_admin = True
         user.is_active = True
         user.is_staff = True
-        user_is_superadmin = True
+        user.is_superadmin = True
         user.save(using=self._db)
 
         return user
@@ -43,9 +43,9 @@ class User(AbstractBaseUser):
     VENDOR = 1
     CUSTOMER = 2
 
-    ROLE_CHIOCES = (
-        ('VENDOR', 'Vendor'),
-        ('CUSTOMER', 'Customer'),
+    ROLE_CHOICES = (
+        (VENDOR, 'Vendor'),
+        (CUSTOMER, 'Customer')
     )
 
     first_name = models.CharField(max_length=50)
@@ -53,7 +53,7 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=12, blank=True)
-    role = models.PositiveSmallIntegerField(choices=ROLE_CHIOCES, blank=True, null=True)
+    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, blank=True, null=True)
 
     # Required Fields
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -78,6 +78,15 @@ class User(AbstractBaseUser):
     
     def has_module_perms(self, app_label):
         return True
+    
+    def get_role(self):
+        user_role = ""
+        if self.role == 1:
+            user_role = "Vendor"
+        elif self.role == 2:
+            user_role = "Customer"
+    
+        return user_role
     
 
 class UserProfile(models.Model):

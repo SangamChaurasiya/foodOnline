@@ -5,6 +5,7 @@ from accounts.models import User, UserProfile
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
+from accounts.utils import sendEmail
 
 
 # Restricting the Vendor from accessing the Customer page
@@ -43,7 +44,12 @@ def registerVendor(request):
             
             vendor.save()
 
-            messages.success(request, "Vendor has been registered successfully!, please wait for the approval.")
+            # # Send Verification Email
+            mailSubject = "Please activate your account"
+            emailTemplate = "accounts/emails/accountVerificationEmail.html"
+            sendEmail(request, user, mailSubject, emailTemplate)
+
+            messages.success(request, "Your account has been registered successfully!, please wait for the approval.")
 
             return redirect('vendor:registerVendor')
         else:

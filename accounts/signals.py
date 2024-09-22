@@ -17,7 +17,7 @@ def post_save_create_profile_receiver(sender, instance, created, **kwargs):
             # Creating User Profile if profile does not exist for already created users
             UserProfile.objects.create(user=instance)
 
-# post_save(post_save_create_profile_receiver, sender=User)
+# post_save.connect(post_save_create_profile_receiver, sender=User)
 
 
 @receiver(pre_save, sender=User)

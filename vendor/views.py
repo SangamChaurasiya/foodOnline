@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from accounts.utils import sendEmail
+from vendor.models import Vendor
 
 
 # Restricting the Vendor from accessing the Customer page
@@ -17,11 +18,11 @@ def checkRoleVendor(user):
     
 
 def registerVendor(request):
-    # Store the data and create the user
     if request.user.is_authenticated:
         messages.warning(request, "You are already logged in!")
         return redirect('accounts:myAccount')
     elif request.method == "POST":
+        # Store the data and create the user
         form = UserForm(request.POST)
         v_form = VendorForm(request.POST, request.FILES)
 
@@ -72,3 +73,8 @@ def registerVendor(request):
 @user_passes_test(checkRoleVendor)
 def vendorDashboard(request):
     return render(request, 'vendors/vendorDashboard.html')
+
+
+@login_required(login_url='accounts:login')
+def vprofile(request):
+    return render(request, 'vendors/vprofile.html')

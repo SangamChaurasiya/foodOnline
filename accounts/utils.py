@@ -29,3 +29,12 @@ def sendEmail(request, user, mailSubject, emailTemplate):
     toEmail = user.email
     mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=[toEmail])
     mail.send()
+
+
+def sendNotification(mailSubject, mailTemplate, context):
+    fromEmail = settings.DEFAULT_FROM_EMAIL
+    message = render_to_string(mailTemplate, context)
+    toEmail = context["user"].email
+    mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=[toEmail])
+    mail.send()
+

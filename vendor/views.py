@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from accounts.forms import UserForm
+from django.shortcuts import render, redirect, get_object_or_404
+from accounts.forms import UserForm, UserProfileForm
 from vendor.forms import VendorForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
@@ -76,5 +76,31 @@ def vendorDashboard(request):
 
 
 @login_required(login_url='accounts:login')
+@user_passes_test(checkRoleVendor)
 def vprofile(request):
-    return render(request, 'vendors/vprofile.html')
+    profile = get_object_or_404(UserProfile, user=request.user)
+    vendor = get_object_or_404(Vendor, user=request.user)
+
+    if request.method == "POST":
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        vendor_form = VendorForm(request.POST, request.FILES, instance=vendor)
+
+        if profile_form.is_valid() and vendor_form.is_valid():
+            profile_form.save()
+            vendor_form.save()
+            messages.success(request, "Settings Updated.")
+            return redirect("vendor:vprofile")
+        else:
+            print(profile_form.errors)
+            print(vendor_form.errors)
+    else:
+        profile_form = UserProfileForm(instance=profile)
+        vendor_form = VendorForm(instance=vendor)
+
+    context = {
+        'profile_form': profile_form,
+        'vendor_form': vendor_form,
+        'profile': profile,
+        'vendor': vendor
+    }
+    return render(request, 'vendors/vprofile.html', context)

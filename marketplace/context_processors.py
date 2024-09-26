@@ -1,6 +1,7 @@
 from marketplace.models import Cart
 from menu.models import FoodItem
 
+
 def get_cart_counter(request):
     cart_count = 0
     if request.user.is_authenticated:
@@ -26,6 +27,6 @@ def get_cart_amounts(request):
             fooditem = FoodItem.objects.get(pk=item.fooditem.id)
             subtotal += (fooditem.price * item.quantity)
 
-        grand_total = subtotal + tax
-        return dict(subtotal=subtotal, tax=tax, grand_total=grand_total)
+    grand_total = subtotal + tax
+    return dict(subtotal=subtotal, tax=tax, grand_total=grand_total)
     

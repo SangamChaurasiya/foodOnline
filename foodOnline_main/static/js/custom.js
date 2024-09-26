@@ -141,7 +141,7 @@ $(document).ready(function(){
                         response.cart_amount['grand_total'],
                     )
 
-                    if (window.location.pathname == '/marketplace/cart/'){
+                    if (window.location.pathname == '/cart/'){
                         removeCartItem(response.qty, cart_id);
                         checkEmptyCart();
                     }
@@ -176,7 +176,7 @@ $(document).ready(function(){
                         response.cart_amount['grand_total'],
                     )
 
-                    if (window.location.pathname == '/marketplace/cart/'){
+                    if (window.location.pathname == '/cart/'){
                         removeCartItem(0, cart_id)
                         checkEmptyCart()
                     }
@@ -204,7 +204,7 @@ $(document).ready(function(){
 
     // apply cart amounts
     function applyCartAmounts(subtotal, tax, grand_total){
-        if (window.location.pathname == "/marketplace/cart/"){
+        if (window.location.pathname == "/cart/"){
             $('#subtotal').html(subtotal);
             $('#tax').html(tax);
             $('#total').html(grand_total);

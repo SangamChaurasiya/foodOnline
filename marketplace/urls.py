@@ -6,8 +6,7 @@ app_name = 'marketplace'
 
 urlpatterns = [
     path('', views.marketplace, name="marketplace"),
-    # CART
-    path('cart/', views.cart, name="cart"),
+    
     path('<slug:vendor_slug>/', views.vendor_details, name="vendor_details"),
 
     # ADD TO CART

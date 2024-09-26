@@ -96,6 +96,7 @@ def decrease_cart(request, food_id):
     return JsonResponse({'status': 'login_required', 'message': 'Please login to continue'})
 
 
+@login_required(login_url='accounts/login')
 def cart(request):
     cart_items = Cart.objects.filter(user=request.user).order_by('created_at')
     context = {
@@ -104,7 +105,6 @@ def cart(request):
     return render(request, 'marketplace/cart.html', context)
 
 
-@login_required(login_url='accounts/login')
 def delete_cart(request, cart_id):
     if request.user.is_authenticated:
         # Checking if request is coming from AJAX or not
@@ -123,7 +123,7 @@ def delete_cart(request, cart_id):
 
 
 def search(request):
-    if 'address' not in request.GET:
+    if not 'address' in request.GET:
         return redirect('markteplace:marketplace')
     else:
         address = request.GET.get("address")
@@ -133,16 +133,17 @@ def search(request):
         keyword = request.GET.get("keyword")
         
         # get the vendor ids that has the food item the user is looking for
-        fetch_vendors_by_food_item = FoodItem.objects.filter(food_title__icontains=keyword, is_available=True).values_list('vendor', flat=True)
+        fetch_vendors_by_food_items = FoodItem.objects.filter(food_title__icontains=keyword, is_available=True).values_list('vendor', flat=True)
 
         # Get the vendors either with food name or restaurant name
-        vendors = Vendor.objects.filter(Q(id__in=fetch_vendors_by_food_item) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True))
+        vendors = Vendor.objects.filter(Q(id__in=fetch_vendors_by_food_items) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True))
         
         if latitude and longitude and radius:
-            pnt = GEOSGeometry(f"POINT({longitude} {latitude})", srid=4326)
-            vendors = Vendor.objects.filter(Q(id__in=fetch_vendors_by_food_item) 
+            pnt = GEOSGeometry("POINT(%s %s)" % (longitude, latitude))
+            
+            vendors = Vendor.objects.filter(Q(id__in=fetch_vendors_by_food_items) 
             | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True, 
-            user_profile__location__distance_lte=(pnt, D(km=int(radius))))
+            user_profile__location__distance_lte=(pnt, D(km=radius)))
             ).annotate(distance=Distance('user_profile__location', pnt)).order_by("distance")
 
             for v in vendors:

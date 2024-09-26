@@ -9,7 +9,7 @@
                     <div class="logo">
                         <figure>
                             <a href="{% url "home" %}" class="light-logo">
-                                <img src="{% static 'logo/foodOnlineLogo.png' %}" alt="FoodBakery" width="250">
+                                <img src="{% static 'logo/foodOnlineLogo.png' %}" alt="FoodOnline" width="250">
                             </a>
                         </figure>
                     </div>
@@ -17,8 +17,8 @@
                         <ul>
                             <li class="location-has-children choose-location">
                                 <form action="#">
-                                    <input type="text" value="" name="location" placeholder="Enter your delivery location" autocomplete="off">
-                                    <span id="foodbakery_radius_location_open" class="foodbakery-radius-location"><i class="icon-target5"></i></span>
+                                    <input type="text" id="location" value="" name="location" placeholder="Your current location" autocomplete="off">
+                                    <span id="foodbakery_radius_location_open" class="foodbakery-radius-location" onclick="getLocation()"><i class="icon-target5"></i></span>
                                 </form>
                                 
                             </li>
@@ -34,7 +34,7 @@
                             </a>
                         {% endif %}
 
-                        <a href="{% url "marketplace:marketplace" %}" class="btn btn-outline-danger text-uppercase font-weight-bold">Marektplace</a>
+                        <a href="{% url "marketplace:marketplace" %}" class="btn btn-outline-danger text-uppercase font-weight-bold">Marketplace</a>
                         
                         {% if user.is_authenticated %}
                             <a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'accounts:myAccount' %}">My Account</a> / <span><a class="cs-color cs-popup-joinus-btn login-popup ml-0 text-danger" href="{% url 'accounts:logout' %}">Logout</a></span>
@@ -50,3 +50,40 @@
     </div>
 </header>
 <!-- Header End -->
+
+<script>
+    const x = document.getElementById("location");
+    var current_location = sessionStorage.getItem("current_location");
+
+    if(current_location != ""){
+        x.value = current_location;
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+    
+    function showPosition(position) {
+        var lat = position.coords.latitude
+        var lng = position.coords.longitude
+
+        // hit AJAX request to googlemaps api endpoint to and get the location data using those lat and lng
+        var GOOGLE_MAPS_API_KEY = "{{ GOOGLE_MAPS_API_KEY }}"
+        var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"+&key="+GOOGLE_MAPS_API_KEY;
+        
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(response){
+                var current_location = response.results[0].formatted_address
+                x.value = current_location
+                sessionStorage.setItem("current_location", current_location)
+                window.location = "?lat="+lat+"&lng="+lng
+            }
+        })
+    }
+</script>

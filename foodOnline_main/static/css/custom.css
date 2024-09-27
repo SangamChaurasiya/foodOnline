@@ -10,7 +10,7 @@
     bottom: 100%;
     right: 20px;
     animation-name: show-toast;
-    animation-duration: 5s;
+    animation-duration: 8s;
     z-index: 99;
 }
 
@@ -22,4 +22,16 @@
 
 .main-search.fancy .field-holder input[type="text"]{
     color: #000000 !important;
+}
+
+table > tbody > tr > td {
+    border: none !important;
+}
+
+#opening_hours select{
+    padding: 5px 10px !important;
+}
+
+.btn-success.add_hour{
+    padding: 7px 15px;
 }

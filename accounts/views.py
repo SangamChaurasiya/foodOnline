@@ -111,7 +111,6 @@ def myAccount(request):
 @login_required(login_url='accounts:login')
 @user_passes_test(checkRoleCustomer)
 def customerDashboard(request):
-    print(request.user.get_role())
     return render(request, 'accounts/customerDashboard.html')
 
 

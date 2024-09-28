@@ -69,10 +69,10 @@ def add_to_cart(request, food_id):
                     chkCart.quantity += 1
                     chkCart.save()
                     return JsonResponse({'status': 'Success', 'message': "Increased the cart quantity", 'cart_counter': get_cart_counter(request), 'qty': chkCart.quantity, 'cart_amount': get_cart_amounts(request)})
-                except:
+                except Exception as e:
                     chkCart = Cart.objects.create(user=request.user, fooditem=fooditem, quantity=1)
                     return JsonResponse({'status': 'Success', 'message': 'Added the food to the cart', 'cart_counter': get_cart_counter(request), 'qty': chkCart.quantity, 'cart_amount': get_cart_amounts(request)})
-            except:
+            except Exception as e:
                 return JsonResponse({'status': 'Failed', 'message': 'This food does not exist!'})
         else:
             return JsonResponse({'status': 'Failed', 'message': 'Invalid request!'})
@@ -98,9 +98,9 @@ def decrease_cart(request, food_id):
                         chkCart.delete()
                         chkCart.quantity = 0
                     return JsonResponse({'status': 'Success', 'cart_counter': get_cart_counter(request), 'qty': chkCart.quantity, 'cart_amount': get_cart_amounts(request)})
-                except:
+                except Exception as e:
                     return JsonResponse({'status': 'Failed', 'message': 'You do not have this item in your cart!'})
-            except:
+            except Exception as e:
                 return JsonResponse({'status': 'Failed', 'message': 'This food does not exist!'})
         else:
             return JsonResponse({'status': 'Failed', 'message': 'Invalid request!'})
@@ -127,7 +127,7 @@ def delete_cart(request, cart_id):
                 if cart_item:
                     cart_item.delete()
                     return JsonResponse({'status': "Success", 'message': "Cart item has been deleted successfully!", 'cart_counter': get_cart_counter(request), 'cart_amount': get_cart_amounts(request)})
-            except:
+            except Exception as e:
                 return JsonResponse({'status': "Failed", 'message': "Cart item does not exist!"})
         else:
             return JsonResponse({'status': "Failed", 'message': "Invalid request!"})

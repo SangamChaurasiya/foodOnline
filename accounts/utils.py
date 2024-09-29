@@ -34,7 +34,11 @@ def sendEmail(request, user, mailSubject, emailTemplate):
 def sendNotification(mailSubject, mailTemplate, context):
     fromEmail = settings.DEFAULT_FROM_EMAIL
     message = render_to_string(mailTemplate, context)
-    toEmail = context["user"].email
-    mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=[toEmail])
+    if isinstance(context['to_email'], str):
+        toEmail = []
+        toEmail.append(context["to_email"])
+    else:
+        toEmail = context["to_email"]
+    mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=toEmail)
     mail.send()
 

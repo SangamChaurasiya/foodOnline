@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
+from orders.models import Order
 
 
 # Restricting the Customer from accessing the Vendor page
@@ -111,7 +112,15 @@ def myAccount(request):
 @login_required(login_url='accounts:login')
 @user_passes_test(checkRoleCustomer)
 def customerDashboard(request):
-    return render(request, 'accounts/customerDashboard.html')
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    recent_orders = orders[:5]
+
+    context = {
+        'orders': orders,
+        'recent_orders': recent_orders,
+        'orders_count': orders.count()
+    }
+    return render(request, 'accounts/customerDashboard.html', context)
 
 
 def forgotPassword(request):

@@ -8,6 +8,11 @@ from django.http import JsonResponse, HttpResponse
 import simplejson as json
 from accounts.utils import sendNotification
 from django.contrib.auth.decorators import login_required
+from foodOnline_main.settings import RZP_KEY_ID, RZP_KEY_SECRET
+import razorpay
+
+
+client = razorpay.Client(auth=(RZP_KEY_ID, RZP_KEY_SECRET))
 
 
 @login_required(login_url="accounts:login")
@@ -44,10 +49,28 @@ def place_order(request):
             order.save() # order id/pk is generated
             order.order_number = generate_order_number(order.id)
             order.save()
-            
+
+            # RazorPay Payment
+            DATA = { 
+                "amount": float(order.total) * 100, 
+                "currency": "INR", 
+                "receipt": "receipt #" + order.order_number,
+                "notes": {
+                    "key1": "value3",
+                    "key2": "value2",
+                }
+            }
+
+            # creating RazorPay order
+            rzp_order = client.order.create(data=DATA)
+            rzp_order_id = rzp_order['id']
+
             context = {
                 'order': order,
                 'cart_items': cart_items,
+                'rzp_order_id': rzp_order_id,
+                'rzp_amount': float(order.total) * 100,
+                'RZP_KEY_ID': RZP_KEY_ID,
             }
             return render(request, 'orders/place_order.html', context)
         else:

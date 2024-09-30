@@ -13,6 +13,8 @@ from menu.forms import CategoryForm, FoodItemForm
 from django.template.defaultfilters import slugify
 from django.http import HttpResponse, JsonResponse
 from django.db.utils import IntegrityError
+import datetime
+
 
 # Restricting the Vendor from accessing the Customer page
 def checkRoleVendor(user):
@@ -82,10 +84,24 @@ def vendorDashboard(request):
     vendor = Vendor.objects.get(user=request.user)
     orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('-created_at')
     recent_orders = orders[:5]
+
+    # Current month's revenue
+    current_month = datetime.datetime.now().month
+    current_month_orders = orders.filter(vendors__in=[vendor.id], created_at__month=current_month)
+    current_month_revenue = 0
+    for i in current_month_orders:
+        current_month_revenue += i.get_total_by_vendor()['grand_total']
+
+    # Total Revenue
+    total_revenue = 0
+    for i in orders:
+        total_revenue += i.get_total_by_vendor()['grand_total']
     context = {
         'orders': orders,
         'orders_count': orders.count(),
         'recent_orders': recent_orders,
+        'total_revenue': total_revenue,
+        'current_month_revenue': current_month_revenue,
     }
     return render(request, 'vendor/vendorDashboard.html', context)
 
@@ -330,5 +346,20 @@ def order_details(request, order_number):
     context = {
         'order': order,
         'ordered_food': ordered_food,
+        'subtotal': order.get_total_by_vendor()['subtotal'],
+        'tax_data': order.get_total_by_vendor()['tax_dict'],
+        'grand_total': order.get_total_by_vendor()['grand_total'],
     }
     return render(request, 'vendor/order_details.html', context)
+
+
+@login_required(login_url="accounts:login")
+@user_passes_test(checkRoleVendor)
+def my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
+
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'vendor/my_orders.html', context)

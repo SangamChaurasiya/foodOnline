@@ -29,5 +29,6 @@ urlpatterns = [
 
     # Order details
     path('order_details/<int:order_number>/', VendorViews.order_details, name="vendor_order_details"),
+    path('my_orders/', VendorViews.my_orders, name="vendor_my_orders"),
 
 ]

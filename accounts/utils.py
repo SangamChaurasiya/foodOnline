@@ -16,8 +16,8 @@ def detectUser(user):
         return "/admin"
     
 
-def sendEmail(request, user, mailSubject, emailTemplate):
-    fromEmail = settings.DEFAULT_FROM_EMAIL
+def send_verification_email(request, user, mailSubject, emailTemplate):
+    from_email = settings.DEFAULT_FROM_EMAIL
     currentSite = get_current_site(request)
     
     message = render_to_string(emailTemplate, {
@@ -27,18 +27,20 @@ def sendEmail(request, user, mailSubject, emailTemplate):
         'token': default_token_generator.make_token(user)
     })
     toEmail = user.email
-    mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=[toEmail])
+    mail = EmailMessage(mailSubject, message, from_email=from_email, to=[toEmail])
+    mail.content_subtype = "html"
     mail.send()
 
 
 def sendNotification(mailSubject, mailTemplate, context):
-    fromEmail = settings.DEFAULT_FROM_EMAIL
+    from_email = settings.DEFAULT_FROM_EMAIL
     message = render_to_string(mailTemplate, context)
     if isinstance(context['to_email'], str):
         toEmail = []
         toEmail.append(context["to_email"])
     else:
         toEmail = context["to_email"]
-    mail = EmailMessage(mailSubject, message, from_email=fromEmail, to=toEmail)
+    mail = EmailMessage(mailSubject, message, from_email=from_email, to=toEmail)
+    mail.content_subtype = "html"
     mail.send()
 

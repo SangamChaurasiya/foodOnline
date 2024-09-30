@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from accounts.forms import UserForm
 from accounts.models import User
 from django.contrib import messages, auth
-from accounts.utils import detectUser, sendEmail
+from accounts.utils import detectUser, send_verification_email
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.utils.http import urlsafe_base64_decode
@@ -46,7 +46,7 @@ def registerUser(request):
             # Send Verification Email
             mailSubject = "Please activate your account"
             emailTemplate = "accounts/emails/accountVerificationEmail.html"
-            sendEmail(request, user, mailSubject, emailTemplate)
+            send_verification_email(request, user, mailSubject, emailTemplate)
 
             messages.success(request, "Your account has been registered successfully!")
 
@@ -132,7 +132,7 @@ def forgotPassword(request):
             # Send Reset Password Email
             mailSubject = "Reset Your Password"
             emailTemplate = "accounts/emails/resetPasswordEmail.html"
-            sendEmail(request, user, mailSubject, emailTemplate)
+            send_verification_email(request, user, mailSubject, emailTemplate)
             messages.success(request, "Reset Password link has been sent to your email address.")
             return redirect('accounts:login')
         else:

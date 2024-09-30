@@ -5,7 +5,7 @@ from accounts.models import User, UserProfile
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from accounts.utils import sendEmail
+from accounts.utils import send_verification_email
 from orders.models import Order, OrderedFood
 from vendor.models import Vendor, OpeningHour
 from menu.models import Category, FoodItem
@@ -57,7 +57,7 @@ def registerVendor(request):
             # # Send Verification Email
             mailSubject = "Please activate your account"
             emailTemplate = "accounts/emails/accountVerificationEmail.html"
-            sendEmail(request, user, mailSubject, emailTemplate)
+            send_verification_email(request, user, mailSubject, emailTemplate)
 
             messages.success(request, "Your account has been registered successfully!, please wait for the approval.")
 

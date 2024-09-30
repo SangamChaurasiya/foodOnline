@@ -6,13 +6,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from accounts.utils import sendEmail
+from orders.models import Order, OrderedFood
 from vendor.models import Vendor, OpeningHour
 from menu.models import Category, FoodItem
 from menu.forms import CategoryForm, FoodItemForm
 from django.template.defaultfilters import slugify
 from django.http import HttpResponse, JsonResponse
 from django.db.utils import IntegrityError
-
 
 # Restricting the Vendor from accessing the Customer page
 def checkRoleVendor(user):
@@ -79,7 +79,15 @@ def registerVendor(request):
 @login_required(login_url="accounts:login")
 @user_passes_test(checkRoleVendor)
 def vendorDashboard(request):
-    return render(request, 'vendor/vendorDashboard.html')
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('-created_at')
+    recent_orders = orders[:5]
+    context = {
+        'orders': orders,
+        'orders_count': orders.count(),
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'vendor/vendorDashboard.html', context)
 
 
 @login_required(login_url='accounts:login')
@@ -274,6 +282,8 @@ def opening_hours(request):
     return render(request, 'vendor/opening_hours.html', context)
 
 
+@login_required(login_url="accounts:login")
+@user_passes_test(checkRoleVendor)
 def add_opening_hours(request):
     if request.user.is_authenticated:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == "POST":
@@ -296,10 +306,29 @@ def add_opening_hours(request):
                 return JsonResponse(response)
         else:
             return HttpResponse("Invalid Request")
-        
+
+
+@login_required(login_url="accounts:login")
+@user_passes_test(checkRoleVendor)
 def remove_opening_hours(request, id=None):
     if request.user.is_authenticated:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             hour = get_object_or_404(OpeningHour, pk=id)
             hour.delete()
             return JsonResponse({'status': 'success', 'id': id})
+        
+
+@login_required(login_url="accounts:login")
+@user_passes_test(checkRoleVendor)
+def order_details(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=get_vendor(request))
+    except:
+        return redirect("vendor:vendorDashboard")
+
+    context = {
+        'order': order,
+        'ordered_food': ordered_food,
+    }
+    return render(request, 'vendor/order_details.html', context)

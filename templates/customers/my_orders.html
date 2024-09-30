@@ -41,12 +41,12 @@
                                                     <tbody>
                                                         {% for order in orders %}
                                                             <tr>
-                                                                <td><b><a href="{% url 'customer:order_details' order.order_number %}" class="text-dark">{{ order.order_number }}</a></b></td>
+                                                                <td><b><a href="{% url 'customer:customer_order_details' order.order_number %}" class="text-dark">{{ order.order_number }}</a></b></td>
                                                                 <td>{{ order.name }}</td>
                                                                 <td>${{ order.total}}</td>
                                                                 <td>{{ order.status }}</td>
                                                                 <td>{{ order.created_at|date:"d-M-Y" }}</td>
-                                                                <td><a class="btn btn-sm btn-danger" href="{% url 'customer:order_details' order.order_number %}">Details</a></td>
+                                                                <td><a class="btn btn-sm btn-danger" href="{% url 'customer:customer_order_details' order.order_number %}">Details</a></td>
                                                             </tr>
                                                         {% endfor %}
                                                     </tbody>

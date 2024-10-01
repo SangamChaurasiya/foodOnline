@@ -1,10 +1,16 @@
 asgiref==3.8.1
+certifi==2024.8.30
+charset-normalizer==3.3.2
 Django==5.0.6
 GDAL @ file:///E:/My%20Learnings/Django%20Projects/Uncomplete%20Projects/foodOnline/GDAL-3.9.2-cp310-cp310-win_amd64.whl#sha256=a151686996fc3244fc0abc8db43ff08491b4a6f271581fc4f9167deb94041e5f
+idna==3.10
 pillow==10.3.0
 psycopg2==2.9.9
 python-decouple==3.8
+razorpay==1.4.2
+requests==2.32.3
 simplejson==3.19.3
 sqlparse==0.5.0
 typing_extensions==4.11.0
 tzdata==2024.1
+urllib3==2.2.3
